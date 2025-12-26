@@ -1,0 +1,6 @@
+# Python junk
+__pycache__/
+*.py[cod]
+aisf_env/
+
+.DS_Store     # Mac specific junk
