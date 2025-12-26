@@ -3,8 +3,7 @@
 
 > Using the Twin Delayed DDPG (TD3) algorithm to solve the Gymnasium BipedalWalker-v3 environment.
 
-![Champion Walker Video](videos/final_eval.mp4) 
-*(Tip: Convert your MP4 to a GIF or just link the video here)*
+[Champion Walker Video](videos/final_eval.mp4) 
 
 ## Quick Start
 To replicate my results:
@@ -12,7 +11,7 @@ To replicate my results:
 2. `python src/record.py` (This will use the pre-trained `td3_walker.zip`)
 
 ## Repository Structure
-.
+```
 ├── models/
 │   ├── td3_walker.zip        # Pre-trained Actor/Critic weights
 │   └── vec_normalize.pkl     # Observation mean/std stats
@@ -21,6 +20,6 @@ To replicate my results:
 │   └── record_walker.py      # Script to load model and generate champion video
 ├── videos/
 │   └── final_eval.mp4        # The 300+ reward champion run video
-├── .gitignore                
-├── requirements.txt          
-└── README.md                 
+├── .gitignore
+├── requirements.txt
+└── README.md
