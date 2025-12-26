@@ -1,25 +1,34 @@
 import gymnasium as gym
-from stable_baselines3 import PPO, TD3
-from gymnasium.wrappers import RecordVideo
+from stable_baselines3 import TD3
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize, VecVideoRecorder
+import os
 
-def record_walker(model_path, video_folder="./best_videos"):
-    # Create env with rgb_array mode for recording
-    env = gym.make("BipedalWalker-v3", render_mode="rgb_array")
+def record_walker(model_path, stats_path="../models/vec_normalize.pkl", video_folder="./best_videos"):
+    env = DummyVecEnv([lambda: gym.make("BipedalWalker-v3", render_mode="rgb_array")])
     
-    # Wrap the env to record every episode in this run
-    env = RecordVideo(env, video_folder=video_folder, name_prefix="final_eval")
+    env = VecNormalize.load(stats_path, env)
+    env.training = False     
+    env.norm_reward = False  
     
-    model = TD3.load(model_path)
+    env = VecVideoRecorder(
+        env, 
+        video_folder, 
+        record_video_trigger=lambda x: x == 0, 
+        video_length=1600,                     
+        name_prefix="final_eval"
+    )
     
-    obs, info = env.reset()
-    done = False
-    while not done:
+    model = TD3.load(model_path, env=env)
+    
+    obs = env.reset()
+    for _ in range(1600):
         action, _ = model.predict(obs, deterministic=True)
-        obs, reward, terminated, truncated, info = env.step(action)
-        done = terminated or truncated
-    
+        obs, reward, done, info = env.step(action)
+        if done:
+            break
+            
     env.close()
     print(f"Video saved to {video_folder}")
 
-# Call the function
-record_walker("td3_walker")
+if __name__ == "__main__":
+    record_walker("../models/td3_walker.zip")

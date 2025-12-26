@@ -1,22 +1,18 @@
 from stable_baselines3 import SAC
 import gymnasium as gym
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3.common.monitor import Monitor # Add this import
+from stable_baselines3.common.monitor import Monitor
 
 from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
 import os
 
-# 1. Environment with Normalization
 env = gym.make("BipedalWalker-v3")
 env = Monitor(env)
 env = DummyVecEnv([lambda: env])
-# SAC loves normalized observations but keep reward normalization OFF initially
 env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=10.)
 
 callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=300, verbose=1)
 
-# 2. Create the evaluation callback
-# This will test the agent every 10,000 steps and stop if it hits the threshold
 eval_callback = EvalCallback(
     env, 
     callback_on_new_best=callback_on_best, 
@@ -26,20 +22,19 @@ eval_callback = EvalCallback(
     eval_freq=10000
 )
 
-# 3. The SAC Model
 model = SAC(
     "MlpPolicy",
     env,
     verbose=1,
-    buffer_size=1_000_000,  # SAC needs a big memory to store past walks
-    learning_starts=1000,    # Collects random data first to seed the memory
-    batch_size=256,         # SAC usually likes larger batches than PPO
-    tau=0.005,              # How fast the "target network" updates (stability)
-    gamma=0.99,             # Discount factor
-    learning_rate=3e-4,     # Standard starting point for SAC
-    train_freq=1,           # Update the model every 1 step
-    gradient_steps=1,       # How many gradient steps per update
-    ent_coef="auto",        # SECRET SAUCE: SAC will tune its own entropy!
+    buffer_size=1_000_000, 
+    learning_starts=1000,  
+    batch_size=256,        
+    tau=0.005,             
+    gamma=0.99,            
+    learning_rate=3e-4,    
+    train_freq=1,          
+    gradient_steps=1,     
+    ent_coef="auto",      
     tensorboard_log="./logs/sac_walker_experiments/"
 )
 
